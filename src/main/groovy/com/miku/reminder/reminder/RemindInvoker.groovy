@@ -27,7 +27,9 @@ class RemindInvoker implements Runnable {
             case "1": {
                 return "минута"
             }
-                case "2" || "3" || "4": {
+                case "3":
+                case "4":
+                case "2" :{
                 return "минуты"
             }
                 default: {
@@ -45,14 +47,23 @@ class RemindInvoker implements Runnable {
                     .filter(x -> x.isBefore(now.plusMinutes(30)))
                     .collect(Collectors.toSet())
             valid.forEach(x -> {
-                map.get(x).forEach(value -> {
+                List<Long> remindersIds = new ArrayList<>();
+                map.get(x).stream().forEach(value -> {
                     SendMessage sendMessage = new SendMessage()
-                    def duration = Duration.between(now, value.date).get(ChronoUnit.SECONDS)/60 as Integer
-                    if (duration == 0)
-                        map.remove(value)
-                    sendMessage.setText(duration < 5 ? "⚠⚠⚠ Вы просили напомнить о ${value.msg}, осталось: ${duration} ${minute.call(duration)}! ⚠⚠⚠" : "Просили напомнить? Напоминаю! До ${value.msg} осталось ${duration} ${minute.call(duration)}!")
                     sendMessage.setChatId(value.userId as String)
+                    def duration = Duration.between(now, value.date).get(ChronoUnit.SECONDS)/60 as Integer
+                    if (duration == 0) {
+                        remindersIds.add(value.id)
+                        sendMessage.setText("Срок для ${value.msg} пришёл!")
+                    } else {
+                        sendMessage.setText(duration < 5 ?
+                                "⚠⚠⚠ Вы просили напомнить о ${value.msg}, осталось ${duration} ${minute.call(duration)}! ⚠⚠⚠" :
+                                "Просили напомнить? Напоминаю! До ${value.msg} осталось ${duration} ${minute.call(duration)}!")
+                    }
                     bot.execute(sendMessage)
+                })
+                remindersIds.stream().forEach(id -> {
+                    map.put(x, map.get(x).stream().filter(reminder -> !remindersIds.contains(reminder.id)).collect(Collectors.toList()))
                 })
                 Thread.sleep(1000 * 60 * 1)
             })

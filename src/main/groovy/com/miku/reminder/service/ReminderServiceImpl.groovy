@@ -5,8 +5,6 @@ import org.springframework.stereotype.Service
 
 import java.time.LocalDateTime
 import java.time.ZoneId
-import java.time.temporal.ChronoUnit
-import java.time.temporal.TemporalField
 import java.util.concurrent.ConcurrentHashMap
 
 @Service
@@ -14,7 +12,7 @@ class ReminderServiceImpl implements ReminderService {
 
     private final ConcurrentHashMap<LocalDateTime, List<Reminder>> main = new ConcurrentHashMap<>()
     private count = 0
-    private def pattern = "dd.MM"
+    private def dayDDMMMMYYYY = "dd.MM.yyyy"
     private def fullPattern = "dd.MM.yy"
 
     private def patternTime = "dd.MM HH:mm:ss"
@@ -22,6 +20,13 @@ class ReminderServiceImpl implements ReminderService {
     private def timeHHMMSS = "HH:mm:ss"
     private def timeHHmm = "HH:mm"
     private def timeHH = "HH"
+
+    def timeMatch = {String time -> {
+        return time.matches('[0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2}?') || time.matches('[0-9]{1,2}:[0-9]{1,2}?') || time.matches('[0-9]{1,2}?')
+    }}
+    def dayMatch = {String time -> {
+        return time.matches('[0-9]{1,2}\\.[0-9]{1,2}\\.[0-9]{1,4}?') || time.matches('[0-9]{1,2}\\.[0-9]{1,2}?') || time.matches('[0-9]{1,2}?')
+    }}
 
     def executeAddR(Long id, String[] strings) {
         Reminder result = new Reminder()
@@ -32,6 +37,9 @@ class ReminderServiceImpl implements ReminderService {
         result.date = findDate(tempData.split(",")[0])
         if (result.date.isBefore(LocalDateTime.now())){
             return "Твоя дата в прошлом. Я бы и рад напомнить, но уже ничего не поделать."
+        }
+        if (result.date.year == 9488){
+            return "Неверный формат даты, попробуй ещё раз."
         }
         result.msg = buildAString.call({ def temp = tempData.split(",")
                     temp[0] = null
@@ -45,65 +53,15 @@ class ReminderServiceImpl implements ReminderService {
     }
 
     def dateByKey(time) {
-        if (time.matches('[0-9]+')){
+        if (timeMatch.call(time)){
             return parseTime(time)
         } else {
             LocalDateTime localDateTime = LocalDateTime.now()
-            def hour = 0
-            switch (time) {
-                case "два": {
-                    hour = 14
-                    break
-                }
-                case "три": {
-                    hour = 15
-                    break
-                }
-                case "четыре": {
-                    hour = 16
-                    break
-                }
-                case "пять": {
-                    hour = 17
-                    break
-                }
-                case "час": {
-                    hour = 13
-                    break
-                }
-                case "шесть": {
-                    hour = 18
-                    break
-                }
-                case "семь": {
-                    hour = 19
-                    break
-                }
-                case "восемь": {
-                    hour = 20
-                    break
-                }
-                case "девять": {
-                    hour = 21
-                    break
-                }
-                case "десять": {
-                    hour = 22
-                    break
-                }
-                case "одиннадцать": {
-                    hour = 23
-                    break
-                }
-                case "двенадцать": {
-                    hour = 12
-                    break
-                }
-                default: hour = 0
-            }
+            def hour = getHourByKeyWord(time)
             return localDateTime.withHour(hour).withMinute(0).withSecond(0)
         }
     }
+
     def parseTime(String time) {
         def temp = time.split(":")
         Date date
@@ -125,39 +83,52 @@ class ReminderServiceImpl implements ReminderService {
                 .atZone(ZoneId.systemDefault())
                 .toLocalDateTime()
     }
-    def parseDate(String date) {
-        def len = date.split("\\.").length
-        if (!date.contains(":")) {
-            switch (len) {
-                case 2: {
-                    return Date.parse(pattern, date)
-                            .toInstant()
-                            .atZone(ZoneId.systemDefault())
-                            .toLocalDateTime()
-                }
-                case 3: {
-                    return Date.parse(fullPattern, date)
-                            .toInstant()
-                            .atZone(ZoneId.systemDefault())
-                            .toLocalDateTime()
-                }
+
+    def parseDay(String time) {
+        def temp = time.split("\\.")
+        Date date
+        def tempTime = LocalDateTime.now()
+        switch (temp.length) {
+            case 1: {
+                time = "$time.${tempTime.monthValue}.${tempTime.year}"
+                date = Date.parse(dayDDMMMMYYYY, time)
+                break
             }
-        } else {
-            switch (len) {
-                case 2: {
-                    return Date.parse(patternTime, date)
-                            .toInstant()
-                            .atZone(ZoneId.systemDefault())
-                            .toLocalDateTime()
-                }
-                case 3: {
-                    return Date.parse(fullPatternTime, date)
-                            .toInstant()
-                            .atZone(ZoneId.systemDefault())
-                            .toLocalDateTime()
-                }
+            case 2: {
+                date = Date.parse(dayDDMMMMYYYY, "$time.${tempTime.year}")
+                break
+            }
+            case 3: {
+                date = Date.parse(dayDDMMMMYYYY, time)
+                break
             }
         }
+        return date.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime()
+    }
+
+    def parseDate(String date) {
+        def arr = date.split("\\s")
+        LocalDateTime dayC, timeC
+        if (arr.length == 2) {
+            def day = arr[0]
+            def time = arr[1]
+            if (timeMatch.call(time))
+                timeC = parseTime(time)
+            if (dayMatch.call(day))
+                dayC = parseDay(day)
+        } else if (arr.length == 1){
+            if (timeMatch.call(date)) {
+                timeC = parseTime(date)
+                dayC = LocalDateTime.now()
+            } else if (dayMatch.call(date)){
+                dayC = parseDay(date)
+                timeC = LocalDateTime.now().withHour(8).withMinute(0).withSecond(0)
+            } else return LocalDateTime.now().withYear(9488)
+        }
+        return dayC?.withHour(timeC?.hour?:8)?.withMinute(timeC?.minute?:0)?.withSecond(timeC?.second?:0)?:
+                LocalDateTime.now().withHour(timeC?.hour?:8).withMinute(timeC?.minute?:0).withSecond(timeC?.second?:0)
     }
 
     def findDate(String source) {
@@ -176,6 +147,7 @@ class ReminderServiceImpl implements ReminderService {
                 date = LocalDateTime.now().plusMonths(1)
                 break
             }
+            case ~/.*к.*/:
             case ~/.*на.*/: {
                 def stime = LocalDateTime.now()
                 def temp = dateByKey(time.split("\\s")[1].toLowerCase())
@@ -197,5 +169,61 @@ class ReminderServiceImpl implements ReminderService {
 
     Long genId(){
         return ++count
+    }
+
+    def getHourByKeyWord(time){
+        def hour = 0
+        switch (time) {
+            case "два": {
+                hour = 14
+                break
+            }
+            case "три": {
+                hour = 15
+                break
+            }
+            case "четыре": {
+                hour = 16
+                break
+            }
+            case "пять": {
+                hour = 17
+                break
+            }
+            case "час": {
+                hour = 13
+                break
+            }
+            case "шесть": {
+                hour = 18
+                break
+            }
+            case "семь": {
+                hour = 19
+                break
+            }
+            case "восемь": {
+                hour = 20
+                break
+            }
+            case "девять": {
+                hour = 21
+                break
+            }
+            case "десять": {
+                hour = 22
+                break
+            }
+            case "одиннадцать": {
+                hour = 23
+                break
+            }
+            case "двенадцать": {
+                hour = 12
+                break
+            }
+            default: hour = 0
+        }
+        return hour
     }
 }

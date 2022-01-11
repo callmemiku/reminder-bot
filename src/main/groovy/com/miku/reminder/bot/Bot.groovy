@@ -1,6 +1,7 @@
 package com.miku.reminder.bot
 
 import com.miku.reminder.bot.commands.AddReminderCommand
+import com.miku.reminder.bot.commands.HelpCommand
 import com.miku.reminder.bot.commands.MyRemindersCommand
 import com.miku.reminder.bot.commands.OkCommand
 import com.miku.reminder.utils.NonCommandMessage
@@ -52,10 +53,11 @@ class Bot extends TelegramLongPollingCommandBot {
     }
 
     @Autowired
-    Bot(AddReminderCommand addReminderCommand, OkCommand echoCommand, MyRemindersCommand myRemindersCommand){
+    Bot(AddReminderCommand addReminderCommand, OkCommand echoCommand, MyRemindersCommand myRemindersCommand, HelpCommand helpCommand){
         register(addReminderCommand)
         register(echoCommand)
         register(myRemindersCommand)
+        register(helpCommand)
     }
 
     @Override
