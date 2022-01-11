@@ -41,6 +41,7 @@ class BotExt extends TelegramLongPollingBot implements ICommandRegistry {
     BotExt(DefaultBotOptions options, boolean allowCommandsWithUsername) {
         super(options)
         this.commandRegistry = new CommandRegistry(allowCommandsWithUsername, this::getBotUsername)
+        registerAll(commandList.toArray() as BotCommand[])
     }
 
     @Override
@@ -70,8 +71,8 @@ class BotExt extends TelegramLongPollingBot implements ICommandRegistry {
     }
 
     @Override
-    Map<IBotCommand, Boolean> registerAll(IBotCommand... iBotCommands) {
-        return null
+    Map<IBotCommand, Boolean> registerAll(IBotCommand... botCommands) {
+        return this.commandRegistry.registerAll(botCommands)
     }
 
     @Override
