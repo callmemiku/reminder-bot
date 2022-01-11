@@ -119,7 +119,10 @@ class ReminderServiceImpl implements ReminderService {
             if (dayMatch.call(day))
                 dayC = parseDay(day)
         } else if (arr.length == 1){
-            if (timeMatch.call(date)) {
+            if (date.matches('[0-9]{1,2}')) {
+                dayC = parseDay(date)
+                timeC = LocalDateTime.now().withHour(8).withMinute(0).withSecond(0)
+            } else if (timeMatch.call(date)) {
                 timeC = parseTime(date)
                 dayC = LocalDateTime.now()
             } else if (dayMatch.call(date)){

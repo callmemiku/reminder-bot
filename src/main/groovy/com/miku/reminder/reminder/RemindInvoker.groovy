@@ -21,15 +21,24 @@ class RemindInvoker implements Runnable {
     private ReminderService reminderService
     @Autowired
     private Bot bot
+
     def minute = {x -> {
         def source = x as String
         switch (source.substring(source.length() - 1)){
             case "1": {
+                if (source.length() > 1){
+                    if (source.substring(source.length() - 2) == "11")
+                        return "минут"
+                }
                 return "минута"
             }
                 case "3":
                 case "4":
                 case "2" :{
+                    if (source.length() > 1){
+                        if (source.substring(source.length() - 2) == "12" || source.substring(source.length() - 2) == "13" || source.substring(source.length() - 2) == "14")
+                            return "минут"
+                    }
                 return "минуты"
             }
                 default: {

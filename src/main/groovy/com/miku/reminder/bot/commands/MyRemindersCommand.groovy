@@ -11,9 +11,6 @@ import org.telegram.telegrambots.meta.api.objects.Chat
 import org.telegram.telegrambots.meta.api.objects.User
 import org.telegram.telegrambots.meta.bots.AbsSender
 
-import java.time.LocalDateTime
-import java.util.stream.Collectors
-
 @Slf4j
 @Component
 class MyRemindersCommand extends BotCommand {
@@ -38,9 +35,7 @@ class MyRemindersCommand extends BotCommand {
         super("my", "Список ваших напоминаний.")
     }
 
-
     def toStr = {x -> return "\tНомер напоминания: ${x.id}\n" +
                 "\t\t\tТекст напоминания: \t\t${x.msg}\n" +
                 "\t\t\tДата: \t\t${x.date.format(reminderService.getDateFormatter())}\n\n"}
-
 }
