@@ -150,6 +150,15 @@ class ReminderServiceImpl implements ReminderService {
                 date = LocalDateTime.now().plusMonths(1)
                 break
             }
+            case ~/.*через.*/:{
+                if (!time.contains("минут")) {
+                    date = LocalDateTime.now().plusHours(getDateThrough(time.split("\\s")[1].toLowerCase()))
+                } else {
+                    def temp = time.replaceAll('^[0-9]', "")
+                    date = LocalDateTime.now().plusMinutes(Integer.parseInt(temp?:"0"))
+                }
+                break
+            }
             case ~/.*к.*/:
             case ~/.*на.*/: {
                 def stime = LocalDateTime.now()
@@ -219,6 +228,62 @@ class ReminderServiceImpl implements ReminderService {
             }
             case "одиннадцать": {
                 hour = 23
+                break
+            }
+            case "двенадцать": {
+                hour = 12
+                break
+            }
+            default: hour = 0
+        }
+        return hour
+    }
+
+    def getDateThrough(String time) {
+        def hour
+        switch (time) {
+            case "два": {
+                hour = 2
+                break
+            }
+            case "три": {
+                hour = 3
+                break
+            }
+            case "четыре": {
+                hour = 4
+                break
+            }
+            case "пять": {
+                hour = 5
+                break
+            }
+            case "час": {
+                hour = 1
+                break
+            }
+            case "шесть": {
+                hour = 6
+                break
+            }
+            case "семь": {
+                hour = 7
+                break
+            }
+            case "восемь": {
+                hour = 8
+                break
+            }
+            case "девять": {
+                hour = 9
+                break
+            }
+            case "десять": {
+                hour = 10
+                break
+            }
+            case "одиннадцать": {
+                hour = 11
                 break
             }
             case "двенадцать": {

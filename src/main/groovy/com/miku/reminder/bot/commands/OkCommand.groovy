@@ -39,7 +39,6 @@ class OkCommand extends BotCommand {
             }
             if (!removed)
                 throw new Exception("no such element")
-            //todo fix date from i + 1
             msg.setText("Убрал напоминание №${strings[0]}.")
         }
         catch (Exception e) {
