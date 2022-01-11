@@ -48,7 +48,6 @@ class RemindInvoker implements Runnable {
     }}
     @Override
     void run() {
-        log.debug("daemon invoker started!")
         while (true){
             def now = LocalDateTime.now()
             Map<LocalDateTime, List<Reminder>> map = reminderService.getMain()

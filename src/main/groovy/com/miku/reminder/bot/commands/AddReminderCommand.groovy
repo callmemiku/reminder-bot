@@ -26,7 +26,6 @@ class AddReminderCommand extends BotCommand {
     void execute(AbsSender absSender, User user, Chat chat, String[] strings) {
         def username = user.getUserName()
         try {
-            //todo hour > 24
             SendMessage message = new SendMessage()
             message.setChatId(chat.getId() as String)
             message.setText(reminderService.executeAddR(chat.getId(), strings) as String)

@@ -10,7 +10,7 @@ import org.telegram.telegrambots.meta.bots.AbsSender
 class EditReminderCommand extends BotCommand {
     @Override
     void execute(AbsSender absSender, User user, Chat chat, String[] strings) {
-
+        
     }
 
     EditReminderCommand(){
