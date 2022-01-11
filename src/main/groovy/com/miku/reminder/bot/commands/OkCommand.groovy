@@ -24,7 +24,6 @@ class OkCommand extends BotCommand {
     void execute(AbsSender absSender, User user, Chat chat, String[] strings) {
         def msg = new SendMessage()
         msg.setChatId(chat.getId() as String)
-        def date
         try {
             def id = Integer.parseInt(strings[0])
             def removed = false
@@ -32,15 +31,16 @@ class OkCommand extends BotCommand {
             for (List<Reminder> list: map.values()){
                 def size = list.size()
                 list.removeIf(x -> {
-                    date = x.date.format(reminderService.getDateFormatter())
-                    x.id == id as long && x.userId == user.getId()})
-                if (size != list.size())
+                    x.id == id as long && x.userId == user.getId()
+                })
+                if (size != list.size()) {
                     removed = true
+                }
             }
             if (!removed)
                 throw new Exception("no such element")
             //todo fix date from i + 1
-            msg.setText("Убрал напоминание №${strings[0]} на ${date}.")
+            msg.setText("Убрал напоминание №${strings[0]}.")
         }
         catch (Exception e) {
             msg.setText("Не нашел по этому номеру ничего. Возможно, опечатка)")
