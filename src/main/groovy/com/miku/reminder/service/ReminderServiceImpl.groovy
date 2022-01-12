@@ -151,11 +151,17 @@ class ReminderServiceImpl implements ReminderService {
                 break
             }
             case ~/.*через.*/:{
+                if (time.matches('^[0-9]+'))
                 if (!time.contains("минут")) {
-                    date = LocalDateTime.now().plusHours(getDateThrough(time.split("\\s")[1].toLowerCase()))
+                    def hour = getDateThrough(time.split("\\s")[1].toLowerCase())
+                    if (hour == -42) {
+                        date = LocalDateTime.now().withYear(9488)
+                        break
+                    }
+                    date = LocalDateTime.now().plusHours(hour)
                 } else {
                     def temp = time.replaceAll('^[0-9]', "")
-                    date = LocalDateTime.now().plusMinutes(Integer.parseInt(temp?:"0"))
+                    date = LocalDateTime.now().plusMinutes(Integer.parseInt(temp?:"8"))
                 }
                 break
             }
@@ -290,7 +296,7 @@ class ReminderServiceImpl implements ReminderService {
                 hour = 12
                 break
             }
-            default: hour = 0
+            default: hour = -42
         }
         return hour
     }

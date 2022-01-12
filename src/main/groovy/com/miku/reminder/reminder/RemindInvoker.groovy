@@ -73,8 +73,8 @@ class RemindInvoker implements Runnable {
                 remindersIds.stream().forEach(id -> {
                     map.put(x, map.get(x).stream().filter(reminder -> !remindersIds.contains(reminder.id)).collect(Collectors.toList()))
                 })
-                Thread.sleep(1000 * 60 * 1)
             })
+            Thread.sleep(1000 * 60 * 1)
         }
     }
 }
