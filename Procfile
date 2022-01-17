@@ -1,0 +1,1 @@
+web: java -jar target/reminder-1.1.2.jar

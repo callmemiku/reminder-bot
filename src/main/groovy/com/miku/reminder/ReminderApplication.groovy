@@ -27,6 +27,7 @@ class ReminderApplication {
 
     @EventListener(ContextRefreshedEvent.class)
     initBot(){
+        TimeZone.setDefault(TimeZone.getTimeZone("Europe/Moscow"))
         try {
             Thread thread = new Thread(remindInvoker)
             thread.setDaemon(true)
