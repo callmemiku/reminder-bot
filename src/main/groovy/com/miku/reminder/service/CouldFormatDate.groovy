@@ -1,6 +1,5 @@
 package com.miku.reminder.service
 
-
 import java.time.format.DateTimeFormatter
 
 trait CouldFormatDate {
